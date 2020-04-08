@@ -26,9 +26,7 @@ export default class Signup extends React.Component{
           
           
             <View style={styles.container}>
-                <View style={styles.logoContainer}>
-                    <Image style={styles.logo} source={require('../assets/splash.png')}/>
-                </View>
+                
                 <View style={styles.formContainer} >
                     <SignupForm navigation={this.props.navigation}/>
                 </View>

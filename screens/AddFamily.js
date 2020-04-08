@@ -1,26 +1,49 @@
 
 import * as React from 'react';
-import { KeyboardAvoidingView,StyleSheet, Text, View ,TextInput, Button} from 'react-native';
+import { ActivityIndicator,KeyboardAvoidingView,StyleSheet, Text, View ,TextInput, Button} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import {Formik} from 'formik';
 import Card from '../components/Card'
-
-export default class AddFamilies extends React.Component {
+import axios from 'axios'
+import * as yup from 'yup'
+import { useNavigation } from '@react-navigation/native';
+class AddFamilies extends React.Component {
 
 
 render(){
+  const { navigation } = this.props;
+  const validationSchem=yup.object().shape({
+    name:yup.string().required().min(5),
+    phone:yup.string().required().min(10).max(10),
+    phone:yup.string().required()
+  })
     return (
         <Card styles={styles.container}>
           <KeyboardAvoidingView>
           <Formik
-          initialValues={{name:'',phone:'',adress:'',notes:'',}}
-          onSubmit={(values,actions)=>{
-            console.log(values)
-            alert('family added succefully')
-            actions.resetForm()
-            
-            
-          }}
+          validationSchema={validationSchem}
+          initialValues={{name:'',phone:'',adress:''}}
+          onSubmit={async (values,actions )=>{
+              const psot= await axios.post("http://www.9ofa.tn/wp-json/assoc/register?name='"+values.name+"'&email='"+values.phone+"'&phone="+values.phone+"&gov='"+values.adress+"'")
+              .then(
+                res => {
+                    
+                    console.log(res.data);
+                    actions.setSubmitting(false)
+                    actions.resetForm()
+                    if (res.status===200){
+                        
+                        navigation.navigate("Families")
+                    }
+                    else{
+                        alert("error please check your inputs")
+                    }
+                  })
+              
+              
+             
+              
+           }}
           >
               {(props)=>(
                     <ScrollView>
@@ -31,6 +54,7 @@ render(){
                       onChangeText={props.handleChange('name')}
                       value={props.values.name}
                       />
+                      <Text style={{color:'red'}}>{props.errors.name}</Text>
                       <Text style={{fontWeight: 'bold'}}>Family Phone number: </Text>
                       <TextInput
                        style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
@@ -39,6 +63,7 @@ render(){
                       value={props.values.phone}
                       keyboardType='number-pad'
                       />
+                      <Text style={{color:'red'}}>{props.errors.phone}</Text>
                       <Text style={{fontWeight: 'bold'}}>Family Adress: </Text>
                       <TextInput
                       multiline
@@ -47,24 +72,22 @@ render(){
                       onChangeText={props.handleChange('adress')}
                       value={props.values.adress}
                       />
-                  
-                      <Text style={{fontWeight: 'bold'}}>Add notes: </Text>
-                      <TextInput
-                      multiline
-                       style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
-                      placeholder='Add notes'
-                      onChangeText={props.handleChange('notes')}
-                      value={props.values.notes}
-                      />
+                  <Text style={{color:'red'}}>{props.errors.adress}</Text>
+                      {
+                          props.isSubmitting ? (
+                            <ActivityIndicator />
+                          ):(
+                            <View style={{marginTop:10}}>
+                            <Button
+                            
+                            title='submit'
+                            
+                            onPress={props.handleSubmit}
+                            />
+                            </View>
+                          )
+                      }
                       
-                      <View style={{marginTop:10}}>
-                      <Button
-                      
-                      title='submit'
-                      
-                      onPress={props.handleSubmit}
-                      />
-                      </View>
                       
                     </ScrollView>
               )}
@@ -81,6 +104,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    alignItems:'center',
+    justifyContent:'center'
   },
   developmentModeText: {
     marginBottom: 20,
@@ -165,3 +190,10 @@ const styles = StyleSheet.create({
     color: '#2e78b7',
   },
 });
+
+
+export default function(props) {
+  const navigation = useNavigation();
+
+  return <AddFamilies {...props} navigation={navigation} />;
+}

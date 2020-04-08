@@ -1,8 +1,8 @@
 
 import * as React from 'react';
-import { FlatList, Platform, StyleSheet, Text, ActivityIndicator, View } from 'react-native';
+import { Linking,FlatList, Platform, StyleSheet, Text, ActivityIndicator, View, Button } from 'react-native';
 import Card from '../components/Card'
-
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 export default class Families extends React.Component {
 constructor(){
   super();
@@ -12,7 +12,7 @@ constructor(){
   }
 }
 componentDidMount(){
-  fetch("http://9ofa.tn/wp-json/messages/done").then(response=>response.json())
+  fetch("http://www.9ofa.tn/wp-json/families/list").then(response=>response.json())
   .then((respnseJson)=>{
     this.setState(
       {
@@ -31,7 +31,22 @@ right: 0, bottom: 0,
 justifyContent: 'center', 
 alignItems: 'center'}}/>
 )
-  }else{
+  }else if(
+    this.state.dataSource.length === 0
+  ){
+    return(
+      <View style={{  flex: 1, 
+        alignItems: 'center',
+        justifyContent: 'center', }}>
+        <Text>
+          No Families yet 
+        </Text>
+      </View>
+    )
+  }
+  
+  
+  else{
     return (
    
       <View style={styles.container}>
@@ -42,22 +57,36 @@ alignItems: 'center'}}/>
       
           <Card style={{padding:10}}>
              
-
-    <Text style={{color: 'red',fontWeight: 'bold'}}>Name: </Text>
-    <Text>{item.prenom}</Text>
-    <Text style={{color: 'red',fontWeight: 'bold'}}>email: </Text>
-    <Text>{item.email}</Text>
-    <Text style={{color: 'red',fontWeight: 'bold'}}>Phone: </Text>
-    <Text>{item.tel}</Text>
-    <Text style={{color: 'red',fontWeight: 'bold'}}>Address: </Text>
-    <Text>{item.adress}</Text>
-    <Text style={{color: 'red',fontWeight: 'bold'}}>gouvernorate: </Text>
-    <Text>{item.gouvernorat}</Text>
-    <Text style={{color: 'red',fontWeight: 'bold'}}>montant: </Text>
-    <Text>{item.montant}</Text>
+            <View>
+            <Text style={{color: 'red',fontWeight: 'bold'}}>Name: </Text>
+              <Text>{item.name}</Text>
+            </View>
+            
+            <View>
+              
+              <Text style={{color: 'red',fontWeight: 'bold'}}>Phone: </Text>
+              <Text>  {item.tel}</Text>
+              
+            </View>
+            <View>
+              
+              <Text style={{color: 'red',fontWeight: 'bold'}}>Address: </Text>
+              <Text>{item.adress}</Text>
+            </View>
+            <View>
+              
+              <Text style={{color: 'red',fontWeight: 'bold'}}>gouvernorate: </Text>
+              <Text>{item.gov}</Text>
+            </View>
+            
+            <View>
+              <Button onPress={()=>{Linking.openURL('tel:${item.tel}');}}  title='call'/>
+                
+              
+            </View>
+           
    
-     
- </Card>
+          </Card>
         }
        >
 
