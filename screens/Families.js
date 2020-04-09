@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Linking,FlatList, Platform, StyleSheet, Text, ActivityIndicator, View, Button } from 'react-native';
 import Card from '../components/Card'
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useIsFocused } from '@react-navigation/native';
+
 
 export default class Families extends React.Component {
 constructor(){
@@ -83,7 +83,7 @@ alignItems: 'center'}}/>
       <View style={{  flex: 1, 
         alignItems: 'center',
         justifyContent: 'center', }}>
-          <Text>{isFocused ? 'focused' : 'unfocused'}</Text>
+
         <Text>
           No Families yet 
         </Text>
