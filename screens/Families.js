@@ -3,15 +3,19 @@ import * as React from 'react';
 import { Linking,FlatList, Platform, StyleSheet, Text, ActivityIndicator, View, Button } from 'react-native';
 import Card from '../components/Card'
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useIsFocused } from '@react-navigation/native';
+
 export default class Families extends React.Component {
 constructor(){
   super();
   this.state={
     isLoading:true,
-    dataSource:[]
+    dataSource:[],
+    refresh:false
   }
+  
 }
-componentDidMount(){
+loadMyData(){
   fetch("http://www.9ofa.tn/wp-json/families/list").then(response=>response.json())
   .then((respnseJson)=>{
     this.setState(
@@ -22,7 +26,48 @@ componentDidMount(){
     )
   })
 }
+
+componentDidMount(){
+  
+    fetch("http://www.9ofa.tn/wp-json/families/list").then(response=>response.json())
+    .then((respnseJson)=>{
+      this.setState(
+        {
+          isLoading:false,
+          dataSource:respnseJson
+        }
+      )
+    })
+  
+  console.log('mount')
+  
+
+
+ 
+}
+componentWillUnmount(){
+ 
+    console.log('ounmouted')
+  }
+handleRefresh=()=>{
+  this.setState({
+    isLoading:true,
+    refresh:true
+  })
+  fetch("http://www.9ofa.tn/wp-json/families/list").then(response=>response.json())
+    .then((respnseJson)=>{
+      this.setState(
+        {
+          isLoading:false,
+          dataSource:respnseJson,
+          refresh:false
+        }
+      )
+    })
+}
+
 render(){
+  
   if(this.state.isLoading){
 return(
 <ActivityIndicator style={{position: 'absolute', 
@@ -38,6 +83,7 @@ alignItems: 'center'}}/>
       <View style={{  flex: 1, 
         alignItems: 'center',
         justifyContent: 'center', }}>
+          <Text>{isFocused ? 'focused' : 'unfocused'}</Text>
         <Text>
           No Families yet 
         </Text>
@@ -51,6 +97,8 @@ alignItems: 'center'}}/>
    
       <View style={styles.container}>
        <FlatList
+       refreshing={this.state.refresh}
+       onRefresh={this.handleRefresh}
       keyExtractor={item => item.prenom}
        data={this.state.dataSource}
        renderItem={({item})=>

@@ -10,13 +10,10 @@ export default class Donnor extends React.Component {
     this.state={
       isLoading:true,
       dataSource:[],
-      lastRefresh: Date(Date.now()).toString()
+      refresh:false
     }
   }
-
-  refreshScreen() {
-    this.setState({ lastRefresh: Date(Date.now()).toString() })
-  }
+ 
   
   componentDidMount(){
     fetch("http://9ofa.tn/wp-json/messages/done").then(response=>response.json())
@@ -29,6 +26,23 @@ export default class Donnor extends React.Component {
         }
       )
     })
+  }
+  handleRefresh=()=>{
+    this.setState({
+      isLoading:true,
+      refresh:true,
+      dataSource:[]
+    })
+    fetch("http://www.9ofa.tn/wp-json/messages/done").then(response=>response.json())
+      .then((respnseJson)=>{
+        this.setState(
+          {
+            isLoading:false,
+            dataSource:respnseJson,
+            refresh:false
+          }
+        )
+      })
   }
   render(){
     if(this.state.isLoading){
@@ -57,7 +71,9 @@ export default class Donnor extends React.Component {
      
         <View style={styles.container}>
          <FlatList
-        keyExtractor={item => item.prenom}
+         refreshing={this.state.refresh}
+         onRefresh={this.handleRefresh}
+        keyExtractor={item => item.id}
          data={this.state.dataSource}
          renderItem={({item})=>
         
@@ -94,7 +110,7 @@ export default class Donnor extends React.Component {
                 <Text>{item.montant} <Icon name="cash-usd" size={20}/></Text>
               </View>
               <View>
-                <Button onPress={()=>{Linking.openURL('tel:${item.tel}');}}  title='call'/>
+                <Button onPress={()=>{Linking.openURL('tel:'+item.tel);}}  title='call'/>
                   
                 
               </View>
@@ -106,12 +122,12 @@ export default class Donnor extends React.Component {
                     
                           if (res.status==200){
                               alert("Donor deleted")
-                              refreshScreen()
+                              this.handleRefresh()
                               
                           }else{
                             alert("error")
                           }
-                          })
+                          }).then(this.handleRefresh)
                       
                     }}
                     />

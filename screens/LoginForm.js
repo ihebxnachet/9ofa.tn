@@ -1,14 +1,27 @@
 import * as React from 'react';
-import { KeyboardAvoidingView,TextInput,View, Text,StyleSheet,TouchableOpacity} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { AsyncStorage,KeyboardAvoidingView,TextInput,View, Text,StyleSheet,TouchableOpacity} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { ActivityIndicator, Colors } from 'react-native-paper';
 import * as yup from 'yup'
 import {Formik} from 'formik';
 import axios from 'axios'
 class  LoginForms extends React.Component{
-    
+  constructor(){
+    super();
+    this.state={
+      data:false,
+      name:'any'
+   
+    }
+  }
+  
   render(){
+    const _storeData =  (key,values) => {
+       
+      AsyncStorage.setItem(key, values);
+  
+   
+ };
     const { navigation } = this.props;
  
     const validationSchem=yup.object().shape({
@@ -17,6 +30,12 @@ class  LoginForms extends React.Component{
      
     })
     
+
+  
+   if(this.state.data){
+  navigation.replace("9ofa.tn")
+    
+  }
     return(
         <Formik
           validationSchema={validationSchem}
@@ -27,11 +46,20 @@ class  LoginForms extends React.Component{
 .then(
   res => {
       if(res.data[0].error==404){
-        alert ('error');
-        console.log(x)
+        alert ('wrong login or account not activated yet');
+        actions.setSubmitting(false)
       }
    else{
-    navigation.navigate("9ofa.tn")
+     console.log(res.data[0])
+     
+    _storeData('name',res.data[0].name)
+    _storeData('gov',res.data[0].gov)
+    _storeData('id',res.data[0].id)
+    _storeData('email',res.data[0].email)
+    _storeData('tel',res.data[0].tel)
+    actions.setSubmitting(false)
+    
+    navigation.navigate('9ofa.tn')
    }
            })}}
               
@@ -43,6 +71,7 @@ class  LoginForms extends React.Component{
               {(props)=>(
        <KeyboardAvoidingView style={styles.container}>
      <TextInput
+     autoCapitalize="none"
      placeholder='Email'
      keyboardType="email-address"
      placeholderTextColor='rgba(52, 46, 55, 0.5)'
@@ -65,7 +94,14 @@ class  LoginForms extends React.Component{
 
      </TextInput>
      <Text style={{color:'red'}}>{props.errors.password}</Text>
-     <TouchableOpacity style={styles.buttonContainer} onPress={props.handleSubmit} >
+     {
+        props.isSubmitting ? (
+          <ActivityIndicator animating={true} color={Colors.red800} />
+        ):(
+          <View>
+
+         
+<TouchableOpacity style={styles.buttonContainer} onPress={props.handleSubmit} >
          <Text style={styles.buttonText}>
                     Login
          </Text>
@@ -75,7 +111,11 @@ class  LoginForms extends React.Component{
                     Signup
          </Text>
      </TouchableOpacity>
-
+     </View>
+        )
+     }
+     
+     <View style={{ flex : 1 }} />
  </KeyboardAvoidingView>
               )}
               </Formik>

@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { ActivityIndicator,KeyboardAvoidingView,StyleSheet, Text, View ,TextInput, Button} from 'react-native';
+import { AsyncStorage,ActivityIndicator,KeyboardAvoidingView,StyleSheet, Text, View ,TextInput, Button} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import {Formik} from 'formik';
 import Card from '../components/Card'
@@ -8,27 +8,43 @@ import axios from 'axios'
 import * as yup from 'yup'
 import { useNavigation } from '@react-navigation/native';
 class AddFamilies extends React.Component {
-
+  constructor(){
+    super();
+    this.state={
+      
+      id:'',
+      
+   
+    }
+  }
 
 render(){
+  const  gov = () => {
+    AsyncStorage.getItem('id').then((value) => {
+     
+      this.setState({ id : value })})
+  };
+  gov()
+  
   const { navigation } = this.props;
   const validationSchem=yup.object().shape({
     name:yup.string().required().min(5),
     phone:yup.string().required().min(10).max(10),
-    phone:yup.string().required()
+    phone:yup.string().required(),
+    name:yup.string().required().min(5),
   })
     return (
         <Card styles={styles.container}>
           <KeyboardAvoidingView>
           <Formik
           validationSchema={validationSchem}
-          initialValues={{name:'',phone:'',adress:''}}
-          onSubmit={async (values,actions )=>{
-              const psot= await axios.post("http://www.9ofa.tn/wp-json/assoc/register?name='"+values.name+"'&email='"+values.phone+"'&phone="+values.phone+"&gov='"+values.adress+"'")
+          initialValues={{name:'',phone:'',adress:'',gov:''}}
+          onSubmit={async (values,actions, )=>{
+              const psot= await axios.post("http://www.9ofa.tn/wp-json/families/register?name='"+values.name+"'&phone="+values.phone+"&gov='"+values.gov+"'&add='"+values.adress+"'&ID="+this.state.id)
               .then(
                 res => {
-                    
-                    console.log(res.data);
+                    console.log(res);
+                 
                     actions.setSubmitting(false)
                     actions.resetForm()
                     if (res.status===200){
@@ -73,6 +89,14 @@ render(){
                       value={props.values.adress}
                       />
                   <Text style={{color:'red'}}>{props.errors.adress}</Text>
+                  <Text style={{fontWeight: 'bold'}}>family gouvernate</Text>
+                  <TextInput
+                      style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
+                      placeholder='gouvernate'
+                      onChangeText={props.handleChange('gov')}
+                      value={props.values.gov}
+                      />
+                      <Text style={{color:'red'}}>{props.errors.name}</Text>
                       {
                           props.isSubmitting ? (
                             <ActivityIndicator />

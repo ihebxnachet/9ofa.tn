@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "HelloWorld",
+    "name": "9ofa.tn",
     "slug": "9ofa_v1",
     "platforms": [
       "ios",
@@ -22,7 +22,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.k0fa.tn",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "com.k0fa.tn",
+      "versionCode": 1
     }
   }
 }
