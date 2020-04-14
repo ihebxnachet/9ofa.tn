@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { Linking,Button,FlatList, Platform, StyleSheet, Text, ActivityIndicator, View } from 'react-native';
+import { AsyncStorage,Linking,Button,FlatList, Platform, StyleSheet, Text, ActivityIndicator, View } from 'react-native';
 import Card from '../components/Card'
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios'
@@ -10,40 +10,50 @@ export default class Donnor extends React.Component {
     this.state={
       isLoading:true,
       dataSource:[],
-      refresh:false
+      refresh:false,
+      gov:''
     }
   }
  
-  
   componentDidMount(){
-    fetch("http://9ofa.tn/wp-json/messages/done").then(response=>response.json())
-    .then((respnseJson)=>{
-      this.setState(
-        {
+  
+    AsyncStorage.getItem('gov').then((value) => {
+       
+      this.setState({ gov : value })
+      const url="http://9ofa.tn/wp-json/messages/done?govv="+this.state.gov
+      fetch(url).then(response=>response.json()).then((responseJson)=>{
+      
+        this.setState({
           isLoading:false,
-          dataSource:respnseJson,
-          
-        }
-      )
+          dataSource:responseJson
+        })
+      })
     })
+    
+    
+  
+  
+   
   }
   handleRefresh=()=>{
     this.setState({
       isLoading:true,
-      refresh:true,
-      dataSource:[]
+      refresh:true
     })
-    fetch("http://www.9ofa.tn/wp-json/messages/done").then(response=>response.json())
-      .then((respnseJson)=>{
-        this.setState(
-          {
-            isLoading:false,
-            dataSource:respnseJson,
-            refresh:false
-          }
-        )
+    AsyncStorage.getItem('id').then((value) => {
+       
+      this.setState({ id : value })
+      const url="http://9ofa.tn/wp-json/messages/done?govv="+this.state.id
+      fetch(url).then(response=>response.json()).then((responseJson)=>{
+        this.setState({
+          isLoading:false,
+          dataSource:responseJson,
+          refresh:false
+        })
       })
+    })
   }
+ 
   render(){
     if(this.state.isLoading){
   return(
@@ -63,6 +73,10 @@ export default class Donnor extends React.Component {
             <Text>
               No donors yet 
             </Text>
+            <Text>
+          click on the button to refresh
+        </Text>
+        <Button title='refresh' onPress={this.handleRefresh}/>
           </View>
         )
     }

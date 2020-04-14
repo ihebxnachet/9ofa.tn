@@ -1,13 +1,13 @@
 
 import * as React from 'react';
-import { AsyncStorage,ActivityIndicator,KeyboardAvoidingView,StyleSheet, Text, View ,TextInput, Button} from 'react-native';
+import {AsyncStorage, ActivityIndicator,KeyboardAvoidingView,StyleSheet, Text, View ,TextInput, Button} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import {Formik} from 'formik';
 import Card from '../components/Card'
 import axios from 'axios'
 import * as yup from 'yup'
 import { useNavigation } from '@react-navigation/native';
-class AddFamilies extends React.Component {
+class AddStocks extends React.Component {
   constructor(){
     super();
     this.state={
@@ -25,31 +25,28 @@ render(){
       this.setState({ id : value })})
   };
   gov()
-  
   const { navigation } = this.props;
   const validationSchem=yup.object().shape({
     name:yup.string().required().min(5),
-    phone:yup.string().required().min(10).max(10),
-    phone:yup.string().required(),
-    name:yup.string().required().min(5),
+ 
+    content:yup.string().required().min(1)
   })
     return (
         <Card styles={styles.container}>
           <KeyboardAvoidingView>
           <Formik
           validationSchema={validationSchem}
-          initialValues={{name:'',phone:'',adress:'',gov:''}}
-          onSubmit={async (values,actions, )=>{
-              const psot= await axios.post("http://www.9ofa.tn/wp-json/families/register?name='"+values.name+"'&phone="+values.phone+"&gov='"+values.gov+"'&add='"+values.adress+"'&ID="+this.state.id)
+          initialValues={{name:'',content:''}}
+          onSubmit={async (values,actions )=>{
+              const psot= await axios.post("http://www.9ofa.tn/wp-json/stock/register?name='"+values.name+"'&quant='"+values.content+"'&ID="+this.state.id)
               .then(
                 res => {
-                    
-                 
+                  
                     actions.setSubmitting(false)
                     actions.resetForm()
                     if (res.status===200){
                         
-                        navigation.navigate("Families")
+                        navigation.navigate("Stocks")
                     }
                     else{
                         alert("error please check your inputs")
@@ -63,40 +60,25 @@ render(){
           >
               {(props)=>(
                     <ScrollView>
-                      <Text style={{fontWeight: 'bold'}}>Family Name: </Text>
+                      <Text style={{fontWeight: 'bold'}}>Stock Name: </Text>
                       <TextInput
                       style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
-                      placeholder='Family Name'
+                      placeholder='Stock Name'
                       onChangeText={props.handleChange('name')}
                       value={props.values.name}
                       />
                       <Text style={{color:'red'}}>{props.errors.name}</Text>
-                      <Text style={{fontWeight: 'bold'}}>Family Phone number: </Text>
+                      <Text style={{fontWeight: 'bold'}}>Stock content: </Text>
                       <TextInput
                        style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
-                      placeholder='Phone number'
-                      onChangeText={props.handleChange('phone')}
-                      value={props.values.phone}
+                      placeholder='Stock content'
+                      onChangeText={props.handleChange('content')}
+                      value={props.values.content}
                       keyboardType='number-pad'
                       />
-                      <Text style={{color:'red'}}>{props.errors.phone}</Text>
-                      <Text style={{fontWeight: 'bold'}}>Family Adress: </Text>
-                      <TextInput
-                      multiline
-                       style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
-                      placeholder='Address'
-                      onChangeText={props.handleChange('adress')}
-                      value={props.values.adress}
-                      />
-                  <Text style={{color:'red'}}>{props.errors.adress}</Text>
-                  <Text style={{fontWeight: 'bold'}}>family gouvernate</Text>
-                  <TextInput
-                      style={{height: 40, borderColor: 'gray', borderWidth: 1,borderRadius:6}}
-                      placeholder='gouvernate'
-                      onChangeText={props.handleChange('gov')}
-                      value={props.values.gov}
-                      />
-                      <Text style={{color:'red'}}>{props.errors.name}</Text>
+                      <Text style={{color:'red'}}>{props.errors.content}</Text>
+                      
+                      
                       {
                           props.isSubmitting ? (
                             <ActivityIndicator />
@@ -219,5 +201,5 @@ const styles = StyleSheet.create({
 export default function(props) {
   const navigation = useNavigation();
 
-  return <AddFamilies {...props} navigation={navigation} />;
+  return <AddStocks {...props} navigation={navigation} />;
 }

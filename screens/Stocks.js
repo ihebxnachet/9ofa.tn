@@ -2,51 +2,42 @@
 import * as React from 'react';
 import { AsyncStorage,Linking,FlatList, Platform, StyleSheet, Text, ActivityIndicator, View, Button } from 'react-native';
 import Card from '../components/Card'
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
-
-export default class Families extends React.Component {
+import axios from 'axios'
+export default class Stocks extends React.Component {
 constructor(){
   super();
   this.state={
     isLoading:true,
     dataSource:[],
-    refresh:false,
-    id:''
+    id:'',refresh:false
   }
-  
 }
-
 
 componentDidMount(){
   
-  AsyncStorage.getItem('id').then((value) => {
+    AsyncStorage.getItem('id').then((value) => {
      
-    this.setState({ id : value })
-    const url="http://www.9ofa.tn/wp-json/families/list?id="+this.state.id
-    fetch(url).then(response=>response.json()).then((responseJson)=>{
-      this.setState({
-        isLoading:false,
-        dataSource:responseJson
+      this.setState({ id : value })
+      const url="http://www.9ofa.tn/wp-json/stock/list?id="+this.state.id
+      fetch(url).then(response=>response.json()).then((responseJson)=>{
+        this.setState({
+          isLoading:false,
+          dataSource:responseJson
+        })
       })
     })
-  })
-  
-  
-
-
- 
+      
 }
-
 handleRefresh=()=>{
   this.setState({
     isLoading:true,
     refresh:true
   })
+  console.log('id'+this.state.id)
   AsyncStorage.getItem('id').then((value) => {
      
     this.setState({ id : value })
-    const url="http://www.9ofa.tn/wp-json/families/list?id="+this.state.id
+    const url="http://www.9ofa.tn/wp-json/stock/list?id="+this.state.id
     fetch(url).then(response=>response.json()).then((responseJson)=>{
       this.setState({
         isLoading:false,
@@ -56,9 +47,13 @@ handleRefresh=()=>{
     })
   })
 }
-
 render(){
-  
+  const  id = () => {
+    AsyncStorage.getItem('id').then((value) => {
+     
+      this.setState({ id : value })})
+  };
+  id()
   if(this.state.isLoading){
 return(
 <ActivityIndicator style={{position: 'absolute', 
@@ -74,15 +69,14 @@ alignItems: 'center'}}/>
       <View style={{  flex: 1, 
         alignItems: 'center',
         justifyContent: 'center', }}>
-
         <Text>
-          No Families yet 
+          No Stock yet 
         </Text>
         <Text>
           click on the button to refresh
         </Text>
         <Button title='refresh' onPress={this.handleRefresh}/>
-        </View>
+      </View>
     )
   }
   
@@ -94,7 +88,7 @@ alignItems: 'center'}}/>
        <FlatList
        refreshing={this.state.refresh}
        onRefresh={this.handleRefresh}
-      keyExtractor={item => item.prenom}
+      keyExtractor={item => item.nom}
        data={this.state.dataSource}
        renderItem={({item})=>
       
@@ -107,26 +101,27 @@ alignItems: 'center'}}/>
             
             <View>
               
-              <Text style={{color: 'red',fontWeight: 'bold'}}>Phone: </Text>
-              <Text>  {item.tel}</Text>
+              <Text style={{color: 'red',fontWeight: 'bold'}}>qunatity: </Text>
+              <Text>  {item.quant}</Text>
               
-            </View>
-            <View>
-              
-              <Text style={{color: 'red',fontWeight: 'bold'}}>Address: </Text>
-              <Text>{item.adress}</Text>
-            </View>
-            <View>
-              
-              <Text style={{color: 'red',fontWeight: 'bold'}}>gouvernorate: </Text>
-              <Text>{item.gov}</Text>
             </View>
             
-            <View>
-              <Button onPress={()=>{Linking.openURL('tel:${item.tel}');}}  title='call'/>
-                
-              
-            </View>
+            <Button title='Delete Stock' onPress={()=>{
+              var url="http://9ofa.tn/wp-json/stock/delete?id="+item.id
+                      axios.get(url).then(
+                        res => {
+                    
+                          if (res.status==200){
+                              alert("Stock deleted")
+                              this.handleRefresh()
+                              
+                          }else{
+                            alert("error")
+                          }
+                          }).then(this.handleRefresh)
+                      
+                    }}/>
+            
            
    
           </Card>
